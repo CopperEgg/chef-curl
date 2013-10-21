@@ -1,10 +1,10 @@
-default['curl']['source']['version']                 = "7.32.0"
+default['curl']['source']['version']                 = "7.33.0"
 default['curl']['source']['prefix']                  = "/usr"
 default['curl']['source']['default_configure_flags'] = "--prefix=#{node['curl']['source']['prefix']} --libdir=/usr/lib/x86_64-linux-gnu --with-gnutls"
 default['curl']['source']['make_flags']              = ""
 default['curl']['source']['file']                    = "curl-#{node['curl']['source']['version']}.tar.gz"
 default['curl']['source']['url']                     = "https://s3.amazonaws.com/cuegg_src/#{node['curl']['source']['file']}"
-default['curl']['source']['checksum']                = "c979fe2200fdef4219c75087b08b34aa580606a3bf7fc512b2e6b1f79e6a4e7c"
+default['curl']['source']['checksum']                = "7450a9c72bd27dd89dc6996aeadaf354fa49bc3c05998d8507e4ab29d4a95172"
 
 default['curl']['c-ares']['enable']                  = true
 default['curl']['c-ares']['version']                 = "1.10.0"
