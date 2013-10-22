@@ -97,7 +97,18 @@ execute "install_curl_source" do
    action :run
 end
 
+
+# add ldconfig info for libcurl and libc-ares
+template "/etc/ld.so.conf.d/curl.conf" do
+   source "ldconf.erb"
+   owner "root"
+   group "root"
+   mode "0644"
+end
+
 execute "run_ldconfig" do
    command "ldconfig"
    action :run
 end
+
+
