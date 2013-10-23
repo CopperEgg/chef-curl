@@ -7,96 +7,54 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# make c-ares dependency if set
-if node['curl']['c-ares']['enable'] == true
-   unless File.exists?("#{Chef::Config[:file_cache_path]}/#{node['curl']['c-ares']['file']}")
-      remote_file "#{Chef::Config[:file_cache_path]}/#{node['curl']['c-ares']['file']}" do
-         source "#{node['curl']['c-ares']['url']}"
-         checksum node['curl']['c-ares']['checksum']
-         action :create_if_missing
-      end
-   end
+# use source_build for the standard functions
+include_recipe "source_build"
 
-   execute "cleanup_c-ares_source" do
-      cwd Chef::Config[:file_cache_path]
-      command "rm -rf curl-#{node['curl']['c-ares']['version']}"
-      not_if do ! FileTest.directory?("curl-#{node['curl']['c-ares']['version']}") end
-      action :run
-   end
+# MAKE C-ARES
+############
+cares_attr = node['curl']['c-ares']
+# only run compile if installed source mismatch compiled
+if cares_attr['enable'] == true && ( compare_list(cares_attr) == false || cares_attr['force_rebuild'] == true )
 
-   execute "extract_c-ares_source" do
-      cwd Chef::Config[:file_cache_path]
-      command "tar zxf #{node['curl']['c-ares']['file']}"
-      action :run
-   end
+   # pull source file
+   pull_source(cares_attr)
 
-   cares_flags = ""
-   cares_flags = "CFLAGS=\"#{node['curl']['source']['make_flags']}\" CPPFLAGS=\"#{node['curl']['c-ares']['make_flags']}\"" if node['curl']['source']['make_flags'] =~ /\w/
+   # cleanup source tree and extract source file
+   cleanup_extract_source(cares_attr)
 
-   execute "config_c-ares_source" do
-      cwd "#{Chef::Config[:file_cache_path]}/c-ares-#{node['curl']['c-ares']['version']}"
-      command "#{cares_flags} ./configure #{node['curl']['c-ares']['default_configure_flags']}"
-      action :run
-   end
+   # configure source
+   config_source(cares_attr)
 
-   execute "make_c-ares_source" do
-      cwd "#{Chef::Config[:file_cache_path]}/c-ares-#{node['curl']['c-ares']['version']}"
-      command "make -j #{node['cpu']['total']}"
-      action :run
-   end
+   # make
+   make(cares_attr)
 
-   execute "install_c-ares_source" do
-      cwd "#{Chef::Config[:file_cache_path]}/c-ares-#{node['curl']['c-ares']['version']}"
-      command "make install"
-      action :run
-   end
+   # install
+   make_install(cares_attr)
+
 end
 
-# make curl
-unless File.exists?("#{Chef::Config[:file_cache_path]}/#{node['curl']['source']['file']}")
-   remote_file "#{Chef::Config[:file_cache_path]}/#{node['curl']['source']['file']}" do
-     source "#{node['curl']['source']['url']}"
-     checksum node['curl']['source']['checksum']
-     action :create_if_missing
-   end
+# MAKE CURL
+############
+curl_attr = node['curl']['source']
+# only run compile if installed source mismatch compiled
+if compare_list(curl_attr) == false || curl_attr['force_rebuild'] == true
+
+   # pull source file
+   pull_source(curl_attr)
+
+   # cleanup source tree and extract source file
+   cleanup_extract_source(curl_attr)
+
+   # configure source
+   config_source(curl_attr)
+
+   # make
+   make(curl_attr)
+
+   # install
+   make_install(curl_attr)
+
 end
-
-execute "cleanup_curl_source" do
-   cwd Chef::Config[:file_cache_path]
-   command "rm -rf curl-#{node['curl']['source']['version']}"
-   not_if do ! FileTest.directory?("curl-#{node['curl']['source']['version']}") end
-   action :run
-end
-
-execute "extract_curl_source" do
-   cwd Chef::Config[:file_cache_path]
-   command "tar zxf #{node['curl']['source']['file']}"
-   action :run
-end
-
-curl_flags = ""
-curl_flags = "CFLAGS=\"#{node['curl']['source']['make_flags']}\" CPPFLAGS=\"#{node['curl']['c-ares']['make_flags']}\"" if node['curl']['source']['make_flags'] =~ /\w/
-curl_cfg_flags = "#{node['curl']['source']['default_configure_flags']}"
-curl_cfg_flags = "#{node['curl']['source']['default_configure_flags']} --enable-ares" if node['curl']['c-ares']['enable'] == true
-
-execute "config_curl_source" do
-   cwd "#{Chef::Config[:file_cache_path]}/curl-#{node['curl']['source']['version']}"
-   command "#{curl_flags} ./configure #{curl_cfg_flags}"
-   action :run
-end
-
-execute "make_curl_source" do
-   cwd "#{Chef::Config[:file_cache_path]}/curl-#{node['curl']['source']['version']}"
-   command "make -j #{node['cpu']['total']}"
-   action :run
-end
-
-execute "install_curl_source" do
-   cwd "#{Chef::Config[:file_cache_path]}/curl-#{node['curl']['source']['version']}"
-   command "make install"
-   action :run
-end
-
 
 # add ldconfig info for libcurl and libc-ares
 template "/etc/ld.so.conf.d/curl.conf" do
@@ -106,9 +64,5 @@ template "/etc/ld.so.conf.d/curl.conf" do
    mode "0644"
 end
 
-execute "run_ldconfig" do
-   command "ldconfig"
-   action :run
-end
-
-
+# run ldconfig
+ldconfig(curl_attr)

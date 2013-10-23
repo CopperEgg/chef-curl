@@ -14,3 +14,4 @@ recipe "curl::source", "Installs curl from source and sets up configuration with
 end
 
 depends          'build-essential'
+depends          'source_build'
