@@ -1,5 +1,6 @@
+default['curl']['c-ares']['name']                    = "c-ares"
 default['curl']['c-ares']['enable']                  = true
-default['curl']['c-ares']['name']                 	  = "c-ares"
+default['curl']['c-ares']['force_rebuild']           = true
 default['curl']['c-ares']['version']                 = "1.10.0"
 default['curl']['c-ares']['prefix']                  = "/usr"
 default['curl']['c-ares']['default_configure_flags'] = ""
@@ -21,10 +22,12 @@ default['curl']['c-ares']['compare_list']            = {
    "ares_rules.h"                => "local/include/ares_rules.h"
 }
 
-default['curl']['source']['name']                 	  = "curl"
+default['curl']['source']['name']                    = "curl"
+default['curl']['source']['force_rebuild']           = true
 default['curl']['source']['version']                 = "7.33.0"
 default['curl']['source']['prefix']                  = "/usr"
 default['curl']['source']['enable_c-ares']           = "--enable-ares" if node['curl']['c-ares']['enable'] == true
+default['curl']['source']['cfg_flags']               = "--enable-ares" if node['curl']['c-ares']['enable'] == true
 default['curl']['source']['default_configure_flags'] = "--prefix=#{node['curl']['source']['prefix']} --libdir=/usr/lib/x86_64-linux-gnu --with-gnutls #{node['curl']['source']['enable_c-ares']}"
 default['curl']['source']['opt_flags']               = ""
 default['curl']['source']['make_flags']              = ""
