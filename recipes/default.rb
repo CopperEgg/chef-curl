@@ -2,7 +2,7 @@
 # Cookbook Name:: curl
 # Recipe:: default
 #
-# Copyright 2013, Copperegg
+# Copyright 2013, IDERA
 #
 # All rights reserved - Do Not Redistribute
 #

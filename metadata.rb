@@ -1,5 +1,5 @@
 name             'curl'
-maintainer       'Copperegg'
+maintainer       'Uptime Cloud Monitor'
 maintainer_email 'jahrens@copperegg.com'
 license          'Apache v2.0'
 description      'Installs/Configures curl'
